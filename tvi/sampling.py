@@ -107,18 +107,23 @@ class Area_Estimator:
 
     for value in value_list:
 
-      lulc_mask = (samples[value_col] == value)
-      
-      samples.loc[:, 'ESTIMATOR'] = 0
-      samples.loc[lulc_mask, 'ESTIMATOR'] = 1
-      
-      population, area_population = self._population(samples)
+      try:
+        lulc_mask = (samples[value_col] == value)
+        
+        samples.loc[:, 'ESTIMATOR'] = 0
+        samples.loc[lulc_mask, 'ESTIMATOR'] = 1
+        
+        population, area_population = self._population(samples)
 
-      lulc_proportion = ((samples['ESTIMATOR'] * samples[self.weight_col]).sum()) / population
-      lulc_se = self._calc_se(samples, lulc_mask, population)
-      
-      lulc_area = lulc_proportion * area_population
-      result.append([value, lulc_area, lulc_proportion, lulc_se, year, region_label])
+        lulc_proportion = ((samples['ESTIMATOR'] * samples[self.weight_col]).sum()) / population
+        lulc_se = self._calc_se(samples, lulc_mask, population)
+        
+        lulc_area = lulc_proportion * area_population
+        result.append([value, lulc_area, lulc_proportion, lulc_se, year, region_label])
+      except:
+        self._verbose(f'_calc_area ERROR for value_col={value_col} value={value}, ' + \
+          'year={year}, region_label={region_label} ')
+        continue
 
     return result
 
